@@ -75,6 +75,9 @@ body {
 .icon-mask[data-icon="sun"] {
   --icon: url("/view/icon/sun.svg");
 }
+.icon-mask[data-icon="file"] {
+  --icon: url("/view/icon/file.svg");
+}
 /* ===== 滚动条样式 ===== */
 /* 浅色主题滚动条 */
 body:not(.theme-dark),

@@ -142,32 +142,10 @@
 }
 /* ===== 文件和媒体元素 ===== */
 .chat-image,
-.chat-media,
-.file-download {
+.chat-media {
   /* 顶部间距 */
   display: block;
   margin-top: var(--space-8);
-}
-/* 文件下载按钮 */
-.file-download {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-5);
-  padding: var(--space-6) var(--space-10);
-  border: var(--border-width) solid var(--download-border);
-  border-radius: var(--radius-sm);
-  background: var(--download-bg);
-  color: var(--download-color);
-  font-size: var(--font-compact);
-  text-decoration: none;
-  /* 过渡效果 */
-  transition: background var(--transition-ui) ease,
-    box-shadow var(--transition-ui) ease, transform var(--transition-micro) ease;
-}
-.file-download:hover {
-  /* 悬停效果 */
-  background: var(--download-bg-hover);
-  box-shadow: var(--shadow-sm);
 }
 /* 聊天图片 */
 .chat-image {

@@ -76,6 +76,15 @@
 .btn-primary {
   --btn-color: #fff;
 }
+/* 主要按钮（蓝色） */
+.btn-primary {
+  --btn-bg: #1890ff;
+  --btn-border: #1890ff;
+  --btn-bg-hover: #1677e6;
+  --btn-focus: rgba(24, 144, 255, 0.18);
+  --btn-shadow-rest: 0 4px 10px rgba(24, 144, 255, 0.12);
+  --btn-shadow-hover: 0 10px 26px rgba(24, 144, 255, 0.24);
+}
 /* 确认按钮（绿色） */
 .btn-confirm {
   --btn-bg: #52c41a;
@@ -103,14 +112,23 @@
   --btn-shadow-rest: none;
   --btn-shadow-hover: none;
 }
-/* 主要按钮（蓝色） */
-.btn-primary {
-  --btn-bg: #1890ff;
-  --btn-border: #1890ff;
-  --btn-bg-hover: #1677e6;
-  --btn-focus: rgba(24, 144, 255, 0.18);
-  --btn-shadow-rest: 0 4px 10px rgba(24, 144, 255, 0.12);
-  --btn-shadow-hover: 0 10px 26px rgba(24, 144, 255, 0.24);
+/* 下载按钮 */
+.btn-download {
+  --btn-bg: var(--download-bg);
+  --btn-bg-hover: var(--download-bg-hover);
+  --btn-color: var(--download-color);
+  --btn-border: var(--download-border);
+  --btn-shadow-rest: none;
+  --btn-shadow-hover: var(--shadow-sm);
+}
+/* 已过期按钮（灰色info风格） */
+.btn-expired {
+  --btn-bg: var(--panel-bg);
+  --btn-bg-hover: var(--list-hover);
+  --btn-color: var(--muted);
+  --btn-border: var(--border);
+  --btn-shadow-rest: none;
+  --btn-shadow-hover: var(--shadow-sm);
 }
 /* ===== 主题切换开关 ===== */
 .theme-switch {

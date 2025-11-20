@@ -1,11 +1,11 @@
 /**
- * panels.js - 面板管理模块
+ * ui-panels.js - UI面板管理模块
  * 此文件负责用户列表、房间列表、按钮状态等UI面板的渲染和更新。
  * 处理在线用户显示、房间列表展示、离开房间按钮状态等功能。
  */
 import { $ } from "./utils.js";
 import { allowedFileOriginalBytes } from "./config.js";
-import { hideNewMsgTip } from "./messages.js";
+import { clearMessages } from "./messages.js";
 /**
  * 渲染用户列表
  * @param {string[]} list - 用户名列表
@@ -87,20 +87,10 @@ export function resetRoomView(
   roomId,
   lobbyId,
   currentUsername,
-  { clearMessages = false } = {}
+  { clearMessages: shouldClearMessages = false } = {}
 ) {
-  if (clearMessages) {
-    const msg = $("messages");
-    if (msg) {
-      // 清除所有消息，但保留新消息提示
-      Array.from(msg.children).forEach((child) => {
-        if (child.id === "newMsgTip") return;
-        if (child.classList && child.classList.contains("message")) {
-          child.remove();
-        }
-      });
-      hideNewMsgTip();
-    }
+  if (shouldClearMessages) {
+    clearMessages();
   }
   // 重置用户列表为空
   renderUserList([], currentUsername);

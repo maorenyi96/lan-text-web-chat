@@ -4,7 +4,6 @@
  * 定义了消息大小限制、房间名称、存储键、主题键、正则表达式等。
  * 提供了错误处理和服务器配置动态应用的工具函数。
  */
-
 // 服务器消息限制字节数，设置为16MB
 const SERVER_MESSAGE_LIMIT_BYTES = 16 * 1024 * 1024;
 // 头部空间字节数，设置为16KB，用于预留空间
@@ -13,6 +12,10 @@ const HEADROOM_BYTES = 16 * 1024;
 export let MAX_MESSAGE_BYTES = SERVER_MESSAGE_LIMIT_BYTES;
 // 导出最大消息数量，可通过服务器配置修改（默认100条，适用于小团队）
 export let MAX_MESSAGES = 100;
+// 导出存储最大字节数，可通过服务器配置修改（默认5MB）
+export let STORAGE_MAX_BYTES = 5 * 1024 * 1024;
+// 导出存储最大年龄天数，可通过服务器配置修改（默认7天）
+export let STORAGE_MAX_AGE_DAYS = 7;
 // 大厅房间的固定名称
 export const LOBBY_ROOM = "lobby";
 // 用户名在本地存储中的键名
@@ -72,7 +75,6 @@ const COPY = Object.freeze({
 });
 export const TEXT = COPY.text;
 const ERROR_MAP = COPY.errors;
-export const STRINGS = COPY;
 /**
  * 根据错误代码获取对应的错误文本
  * @param {string} code - 错误代码字符串
@@ -114,6 +116,22 @@ export function applyServerConfig(cfg) {
     // 更新最大消息数量，如果配置有效
     if (cfg && Number.isFinite(cfg.maxMessages) && cfg.maxMessages > 0) {
       MAX_MESSAGES = Math.max(10, Math.min(1000, cfg.maxMessages)); // 限制在10-1000之间
+    }
+    // 更新存储最大字节数，如果配置有效
+    if (
+      cfg &&
+      Number.isFinite(cfg.storageMaxBytes) &&
+      cfg.storageMaxBytes > 0
+    ) {
+      STORAGE_MAX_BYTES = Math.max(1024 * 1024, cfg.storageMaxBytes); // 最小1MB
+    }
+    // 更新存储最大年龄天数，如果配置有效
+    if (
+      cfg &&
+      Number.isFinite(cfg.storageMaxAgeDays) &&
+      cfg.storageMaxAgeDays > 0
+    ) {
+      STORAGE_MAX_AGE_DAYS = Math.max(1, cfg.storageMaxAgeDays); // 最小1天
     }
     // 更新用户名正则表达式，如果配置有效
     if (

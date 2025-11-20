@@ -23,6 +23,8 @@ class Settings:
     max_message_bytes: int
     max_messages: int
     static_cache_seconds: int
+    storage_max_bytes: int
+    storage_max_age_days: int
 
 
 # 辅助函数：处理CORS源列表
@@ -57,11 +59,19 @@ def _load_settings() -> Settings:
     max_bytes = _get_env_int("MAX_MESSAGE_BYTES", 16 * 1024 * 1024, 1)
     max_msgs = _get_env_int("MAX_MESSAGES", 100, 10)  # 默认100，最小10
     cache_seconds = _get_env_int("STATIC_CACHE_SECONDS", 86400, 0)
+    storage_max_bytes = _get_env_int(
+        "STORAGE_MAX_BYTES", 5 * 1024 * 1024, 1024 * 1024
+    )  # 默认5MB，最小1MB
+    storage_max_age_days = _get_env_int(
+        "STORAGE_MAX_AGE_DAYS", 7, 1
+    )  # 默认7天，最小1天
     return Settings(
         allow_origins=allow,
         max_message_bytes=max_bytes,
         max_messages=max_msgs,
         static_cache_seconds=cache_seconds,
+        storage_max_bytes=storage_max_bytes,
+        storage_max_age_days=storage_max_age_days,
     )
 
 
@@ -75,6 +85,10 @@ MAX_MESSAGE_BYTES = _settings.max_message_bytes
 MAX_MESSAGES = _settings.max_messages
 # 静态资源缓存时长（秒）
 STATIC_CACHE_SECONDS = _settings.static_cache_seconds
+# localStorage最大存储字节数
+STORAGE_MAX_BYTES = _settings.storage_max_bytes
+# 存储数据最大年龄（天）
+STORAGE_MAX_AGE_DAYS = _settings.storage_max_age_days
 
 
 # 构造错误响应，返回标准 JSON 格式
@@ -109,6 +123,8 @@ __all__ = [
     "MAX_MESSAGES",
     "NAME_PATTERN",
     "STATIC_CACHE_SECONDS",
+    "STORAGE_MAX_BYTES",
+    "STORAGE_MAX_AGE_DAYS",
     "err",
     "jloads",
     "ok",

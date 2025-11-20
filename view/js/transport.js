@@ -54,7 +54,7 @@ export class Transport {
    */
   connectLobby() {
     if (wsOpen(this.lobbyWs)) return;
-    this._clearLobbyTimer();
+    this._clearTimer("lobby");
     this._openLobbySocket();
   }
   /**
@@ -72,7 +72,7 @@ export class Transport {
     }
     this.currentRoom = roomId;
     this._emit("roomSwitch", roomId);
-    this._clearRoomTimer();
+    this._clearTimer("room");
     this._openRoomSocket(roomId);
   }
   /**
@@ -139,7 +139,7 @@ export class Transport {
     });
     this.lobbyWs.addEventListener("close", () => {
       this.lobbyWs = null;
-      this._scheduleLobbyReconnect();
+      this._scheduleReconnect("lobby");
     });
   }
   /**
@@ -202,67 +202,70 @@ export class Transport {
       if (manual && this.currentRoom) {
         // 手动关闭后重新连接
         this._emit("roomSwitch", this.currentRoom);
-        this._clearRoomTimer();
+        this._clearTimer("room");
         this._openRoomSocket(this.currentRoom);
         return;
       }
       const shouldRetry =
         !manual && (!ev || (ev.code !== 1008 && ev.code !== 1009));
       if (shouldRetry && this.currentRoom) {
-        this._scheduleRoomReconnect(this.currentRoom);
+        this._scheduleReconnect("room", this.currentRoom);
       }
     });
   }
   /**
-   * 调度大厅重连
+   * 调度重连
+   * @param {string} type - 连接类型 ('lobby' 或 'room')
+   * @param {string} [roomId] - 房间ID（仅房间重连需要）
    * @private
    */
-  _scheduleLobbyReconnect() {
-    if (this._lobbyTimer || wsOpen(this.lobbyWs)) return;
-    this._emitConnection("lobby", "reconnecting", { delay: this._lobbyRetry });
-    this._lobbyTimer = setTimeout(() => {
-      this._lobbyTimer = null;
-      this._lobbyRetry = Math.min(this._lobbyRetry * 2, RETRY_MAX_MS);
-      this._openLobbySocket();
-    }, this._lobbyRetry);
-  }
-  /**
-   * 调度房间重连
-   * @param {string} roomId - 房间ID
-   * @private
-   */
-  _scheduleRoomReconnect(roomId) {
-    if (this._roomTimer || wsOpen(this.roomWs) || !roomId) return;
-    this._emitConnection("room", "reconnecting", {
-      delay: this._roomRetry,
-      roomId,
+  _scheduleReconnect(type, roomId) {
+    const isLobby = type === "lobby";
+    const ws = isLobby ? this.lobbyWs : this.roomWs;
+    const timer = isLobby ? this._lobbyTimer : this._roomTimer;
+    const retry = isLobby ? this._lobbyRetry : this._roomRetry;
+    if (timer || wsOpen(ws) || (!isLobby && !roomId)) return;
+    this._emitConnection(type, "reconnecting", {
+      delay: retry,
+      ...(roomId && { roomId }),
     });
-    this._roomTimer = setTimeout(() => {
-      this._roomTimer = null;
-      this._roomRetry = Math.min(this._roomRetry * 2, RETRY_MAX_MS);
-      if (this.getUsername()) {
-        this._openRoomSocket(roomId);
+    const setTimer = isLobby
+      ? (t) => (this._lobbyTimer = t)
+      : (t) => (this._roomTimer = t);
+    const clearTimer = isLobby
+      ? () => (this._lobbyTimer = null)
+      : () => (this._roomTimer = null);
+    const updateRetry = isLobby
+      ? (r) => (this._lobbyRetry = r)
+      : (r) => (this._roomRetry = r);
+    const openSocket = isLobby
+      ? () => this._openLobbySocket()
+      : () => this._openRoomSocket(roomId);
+    setTimer(
+      setTimeout(() => {
+        clearTimer();
+        updateRetry(Math.min(retry * 2, RETRY_MAX_MS));
+        if (isLobby || this.getUsername()) {
+          openSocket();
+        }
+      }, retry)
+    );
+  }
+  /**
+   * 清除重连定时器
+   * @param {string} type - 连接类型 ('lobby' 或 'room')
+   * @private
+   */
+  _clearTimer(type) {
+    const isLobby = type === "lobby";
+    const timer = isLobby ? this._lobbyTimer : this._roomTimer;
+    if (timer) {
+      clearTimeout(timer);
+      if (isLobby) {
+        this._lobbyTimer = null;
+      } else {
+        this._roomTimer = null;
       }
-    }, this._roomRetry);
-  }
-  /**
-   * 清除大厅重连定时器
-   * @private
-   */
-  _clearLobbyTimer() {
-    if (this._lobbyTimer) {
-      clearTimeout(this._lobbyTimer);
-      this._lobbyTimer = null;
-    }
-  }
-  /**
-   * 清除房间重连定时器
-   * @private
-   */
-  _clearRoomTimer() {
-    if (this._roomTimer) {
-      clearTimeout(this._roomTimer);
-      this._roomTimer = null;
     }
   }
   /**

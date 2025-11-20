@@ -9,6 +9,8 @@ from server.config import (
     VIEW_DIR,
     MAX_MESSAGE_BYTES,
     MAX_MESSAGES,
+    STORAGE_MAX_BYTES,
+    STORAGE_MAX_AGE_DAYS,
     jd,
     err,
     ok,
@@ -56,6 +58,8 @@ def make_router(room_manager: RoomManager) -> APIRouter:
         return {
             "maxMessageBytes": MAX_MESSAGE_BYTES,
             "maxMessages": MAX_MESSAGES,
+            "storageMaxBytes": STORAGE_MAX_BYTES,
+            "storageMaxAgeDays": STORAGE_MAX_AGE_DAYS,
             "namePattern": NAME_PATTERN,
             "errorCodes": sorted(ERROR_CODES),
         }
