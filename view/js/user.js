@@ -75,6 +75,10 @@ export function confirmUsername(transport) {
     ) {
       transport.send({ type: "rename", username: getUsername() });
     }
+    // 如果当前没有连接房间，自动连接到大厅
+    if (transport && !transport.currentRoom) {
+      transport.connectRoom("lobby");
+    }
     // 返回true表示用户名已更改
     return true;
   }
